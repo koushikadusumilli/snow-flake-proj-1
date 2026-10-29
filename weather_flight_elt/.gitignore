@@ -1,0 +1,21 @@
+# Secrets and local configuration
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# dbt build artifacts
+dbt_project/target/
+dbt_project/logs/
+dbt_project/dbt_packages/
+
+# Airflow local files
+logs/
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,38 @@
+# =============================================================================
+# dbt project: weather and flight analytics
+#
+# Layers (dbt Labs standard structure)
+#   models/staging   One model per raw table. Rename, cast, deduplicate. Views.
+#   models/marts     Business-facing models that join staging models. Views here,
+#                    switch to `table` or `incremental` as data volume grows.
+#
+# Schema names are used exactly as written below (see macros/
+# generate_schema_name.sql), so you get `staging` and `marts`, not
+# `analytics_staging`.
+# =============================================================================
+name: "weather_flight_analytics"
+version: "1.0.0"
+config-version: 2
+
+# Must match the top-level key in profiles.yml.
+profile: "weather_flight"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+# Build artifacts. In Docker the DBT_TARGET_PATH environment variable moves this
+# to /tmp because the project directory is mounted read-only.
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  weather_flight_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+      +tags: ["staging"]
+    marts:
+      +materialized: view
+      +schema: marts
+      +tags: ["marts"]

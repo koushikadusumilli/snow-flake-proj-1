@@ -1,0 +1,23 @@
+# =============================================================================
+# dbt connection profile. Kept inside the project so the same file works:
+#   * in Docker  (DBT_PROFILES_DIR points here; WAREHOUSE_* come from compose)
+#   * on a laptop (defaults below target the warehouse published on localhost:5433)
+#
+# Nothing secret lives here: values come from environment variables and the
+# fallbacks are the local development defaults from docker-compose.yml.
+# =============================================================================
+weather_flight:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('WAREHOUSE_HOST', 'localhost') }}"
+      port: "{{ env_var('WAREHOUSE_PORT', '5433') | as_number }}"
+      user: "{{ env_var('WAREHOUSE_USER', 'warehouse') }}"
+      password: "{{ env_var('WAREHOUSE_PASSWORD', 'warehouse') }}"
+      dbname: "{{ env_var('WAREHOUSE_DB', 'warehouse') }}"
+      # Fallback schema for any model without a custom schema. The staging and
+      # marts folders set their own schemas in dbt_project.yml.
+      schema: analytics
+      threads: 4
+      connect_timeout: 10

@@ -1,0 +1,39 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Landing zone written by src/extract.py through the Airflow DAG. Data is
+      stored as received: duplicates, mixed-case codes and inconsistent status
+      labels are expected here and are cleaned in the staging models.
+    schema: raw
+    loader: "Airflow DAG weather_flight_etl (src/extract.py)"
+
+    tables:
+      - name: weather_observations
+        description: Hourly weather observations per airport (UTC).
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+        columns:
+          - name: observation_id
+            description: Airport code plus observation timestamp. Not unique in raw (duplicates are possible).
+            data_tests:
+              - not_null
+          - name: airport_code
+            data_tests:
+              - not_null
+
+      - name: flights
+        description: One row per scheduled departure (UTC).
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+        columns:
+          - name: flight_id
+            description: Unique flight identifier built from date, origin, sequence and flight number.
+            data_tests:
+              - not_null
+          - name: origin_airport
+            data_tests:
+              - not_null

@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: mart_weather_flight_impact
+    description: >
+      Hourly departure performance per origin airport joined to the weather
+      observed at that airport in the same hour. One row per airport per hour.
+      Use it to compare delay and cancellation rates across weather conditions
+      and severity levels.
+    columns:
+      - name: airport_hour_key
+        description: Surrogate key, airport code plus UTC hour (for example ATL_2026102714).
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_code
+        data_tests:
+          - not_null
+      - name: departure_hour_utc
+        description: Scheduled departure hour in UTC (no time zone).
+        data_tests:
+          - not_null
+      - name: weather_condition
+        description: Condition observed at the origin airport in that hour. Null only when no observation exists.
+      - name: weather_severity
+        description: Derived bucket. severe, moderate, mild, or unknown when weather is missing.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["severe", "moderate", "mild", "unknown"]
+      - name: total_departures
+        data_tests:
+          - not_null
+      - name: cancellation_rate
+        description: cancelled_flights divided by total_departures, 0 to 1.
+      - name: delay_rate
+        description: delayed_flights divided by total_departures, 0 to 1. Delayed means 15 or more minutes late.
+      - name: airport_baseline_delay_rate
+        description: The airport's overall delay rate across all loaded hours.
+      - name: delay_rate_vs_baseline
+        description: delay_rate minus airport_baseline_delay_rate. Positive means worse than usual.

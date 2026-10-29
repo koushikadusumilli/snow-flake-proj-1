@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: stg_weather
+    description: >
+      Hourly weather observations per airport. Deduplicated on observation_id,
+      codes standardised, units converted and condition flags added.
+    columns:
+      - name: observation_id
+        description: Unique key of the observation.
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_code
+        description: Upper-case IATA airport code.
+        data_tests:
+          - not_null
+      - name: observed_hour_utc
+        description: Observation time truncated to the hour (UTC, no time zone). Join key to flights.
+        data_tests:
+          - not_null
+      - name: temperature_f
+        data_tests:
+          - not_null
+      - name: weather_condition
+        description: Title-case condition label.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["Clear", "Cloudy", "Fog", "Rain", "Snow", "Thunderstorm"]
+      - name: is_low_visibility
+        description: True when visibility is under 3 miles. False when visibility is missing.
+      - name: is_high_wind
+        description: True when the gust (or sustained wind if no gust) is 25 mph or more.
+
+  - name: stg_flights
+    description: >
+      One row per scheduled departure. Deduplicated on flight_id, airport codes
+      and status standardised, delay and cancellation flags added.
+    columns:
+      - name: flight_id
+        description: Unique key of the flight.
+        data_tests:
+          - unique
+          - not_null
+      - name: origin_airport_code
+        description: Upper-case IATA code of the departure airport.
+        data_tests:
+          - not_null
+      - name: destination_airport_code
+        description: Upper-case IATA code of the arrival airport.
+        data_tests:
+          - not_null
+      - name: scheduled_departure_at_utc
+        data_tests:
+          - not_null
+      - name: flight_status
+        description: Normalised status. Any unmapped raw label becomes unknown and fails this test.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["on_time", "delayed", "cancelled"]
+      - name: is_cancelled
+        data_tests:
+          - not_null
+      - name: is_delayed
+        description: True when the departure delay is 15 minutes or more.
+        data_tests:
+          - not_null

@@ -1,0 +1,20 @@
+# =============================================================================
+# Python dependencies for the weather and flight ELT pipeline.
+#
+# Docker: this file builds the isolated dbt virtual environment inside the
+#         Airflow image (see Dockerfile). Airflow itself and psycopg2 already
+#         ship with the apache/airflow base image, so the DAG and src/extract.py
+#         need nothing extra there.
+# Local:  pip install -r requirements.txt   (use a fresh virtual environment,
+#         Python 3.10 or newer) to run src/extract.py and dbt from your laptop.
+# =============================================================================
+
+# Used by src/extract.py to write to the warehouse.
+psycopg2-binary>=2.9.9,<3.0
+
+# Transformation layer. dbt-core and the Postgres adapter share a minor version.
+dbt-core>=1.8,<1.9
+dbt-postgres>=1.8,<1.9
+
+# Conservative pin: dbt-core 1.8 is validated against click 8.1.
+click>=8.1,<8.2
